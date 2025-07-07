@@ -1,5 +1,6 @@
 import webpush, { type PushSubscription } from "web-push";
 import { corsHeaders } from "./cors";
+import db from "./db";
 
 webpush.setVapidDetails(
   "mailto:edymusajev@gmail.com",
@@ -8,11 +9,6 @@ webpush.setVapidDetails(
 );
 
 type Subscriber = PushSubscription & { userId: string };
-
-async function parseBody<T>(req: Request): Promise<T> {
-  const body = await req.json();
-  return body as T;
-}
 
 const getSubscribers = async () => {
   try {
@@ -72,10 +68,6 @@ Bun.serve({
     "/api/subscribe": {
       GET: async () => new Response("Hello from Bun!"),
       POST: async (req) => {
-        // 1. TODO: should check for authentication
-        // 2. TODO: (if exists)cleanup old subscriptions
-        // 3. TODO: create push subscription for user
-        // 4. TODO: update session with subscription
         const body = await req.json();
         console.log(body);
         await addSubscriber({
@@ -132,6 +124,27 @@ Bun.serve({
         }
         await sendNotification(subscriber, body.message);
         return new Response(null, { status: 204, headers: corsHeaders });
+      },
+    },
+    "/api/user": {
+      POST: async (req) => {
+        const body = (await req.json()) as { username: string };
+        // check if user exists
+        const user = (await db
+          .query("SELECT * FROM users WHERE username = ?")
+          .get(body.username)) as { username: string };
+        if (user) {
+          return Response.json(
+            { username: user.username },
+            { headers: corsHeaders }
+          );
+        }
+        // create user
+        db.query("INSERT INTO users (username) VALUES (?)").run(body.username);
+        return Response.json(
+          { username: body.username },
+          { headers: corsHeaders }
+        );
       },
     },
   },

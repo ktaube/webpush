@@ -74,7 +74,7 @@ const unsubscribe = async () => {
   await subscription?.unsubscribe();
 };
 
-function App() {
+function App({ user }: { user: string }) {
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
@@ -89,6 +89,15 @@ function App() {
   return (
     <>
       <h1>Push Notifications</h1>
+      <p>Logged in as {user}</p>
+      <button
+        onClick={() => {
+          localStorage.removeItem("user");
+          window.location.reload();
+        }}
+      >
+        Logout
+      </button>
       {isSubscribed ? (
         <button
           onClick={async () => {
