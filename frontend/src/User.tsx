@@ -21,7 +21,7 @@ const CreateUser = ({ setUser }: { setUser: (user: string) => void }) => {
 
   return (
     <form action={send}>
-      <h2>Create username or login with existing one</h2>
+      <h2>Create username or login with existing one!</h2>
       <p>
         Push notification subscription will be associated with your username.
       </p>

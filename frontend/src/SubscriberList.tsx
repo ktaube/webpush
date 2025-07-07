@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { API_URL } from "./api";
 import { SendMessage } from "./SendMessage";
 
-type Subscriber = PushSubscription & { userId: string };
+type Subscriber = PushSubscription & { username: string };
 
 export const SubscriberList = () => {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
@@ -20,8 +20,8 @@ export const SubscriberList = () => {
     <div>
       {subscribers.map((subscriber) => (
         <div key={subscriber.endpoint}>
-          <span>{subscriber.userId}</span>
-          <SendMessage to={subscriber.userId} />
+          <span>{subscriber.username}</span>
+          <SendMessage to={subscriber.username} />
         </div>
       ))}
     </div>

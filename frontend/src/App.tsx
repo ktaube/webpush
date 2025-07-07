@@ -49,6 +49,7 @@ const subscribe = async () => {
     const res = await fetch(`${API_URL}/subscribe`, {
       method: "POST",
       body: JSON.stringify({
+        username: localStorage.getItem("user"),
         endpoint,
         keys: {
           p256dh: keys.p256dh,

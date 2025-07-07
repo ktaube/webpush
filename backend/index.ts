@@ -8,33 +8,42 @@ webpush.setVapidDetails(
   "0e55cJrdHkF16CHx7vCNQemv_ux1AyvFDbBL9vN6nDE"
 );
 
-type Subscriber = PushSubscription & { userId: string };
+type Subscriber = PushSubscription & { username: string };
 
 const getSubscribers = async () => {
   try {
-    const subscribers = Bun.file("subscribers.json");
-    if (subscribers.size === 0) return [];
-    return (await subscribers.json()) as Subscriber[];
+    const subscribers = db
+      .query("SELECT * FROM subscriptions")
+      .all() as Subscriber[];
+    return subscribers;
   } catch (error) {
     console.error("Error loading subscribers:", error);
     return [];
   }
 };
-const getSubscriberById = async (id: string) => {
-  const subscribers = await getSubscribers();
-  return subscribers.find((s) => s.userId === id);
+const getSubscribersByUsername = async (username: string) => {
+  const user = (await db
+    .query("SELECT * FROM users WHERE username = ?")
+    .get(username)) as { username: string };
+  if (!user) return [];
+  const subscribers = db
+    .query("SELECT * FROM subscriptions WHERE username = ?")
+    .all(user.username) as Subscriber[];
+  return subscribers;
 };
 const addSubscriber = async (subscriber: Subscriber) => {
-  const subscribers = await getSubscribers();
-  subscribers.push(subscriber);
-  await Bun.file("subscribers.json").write(JSON.stringify(subscribers));
+  db.query(
+    "INSERT INTO subscriptions (username, endpoint, keys) VALUES (?, ?, ?)"
+  ).run(
+    subscriber.username,
+    subscriber.endpoint,
+    JSON.stringify(subscriber.keys)
+  );
 };
 const removeSubscriber = async (subscriber: Subscriber) => {
-  const subscribers = await getSubscribers();
-  const filteredSubscribers = subscribers.filter(
-    (s) => s.endpoint !== subscriber.endpoint
+  db.query("DELETE FROM subscriptions WHERE endpoint = ?").run(
+    subscriber.endpoint
   );
-  await Bun.file("subscribers.json").write(JSON.stringify(filteredSubscribers));
 };
 
 const sendNotificationToAll = async (message: string) => {
@@ -45,9 +54,11 @@ const sendNotificationToAll = async (message: string) => {
 };
 
 const sendNotification = async (subscriber: Subscriber, message: string) => {
-  console.log(subscriber);
   await webpush.sendNotification(
-    subscriber,
+    {
+      ...subscriber,
+      keys: JSON.parse(subscriber.keys) as { p256dh: string; auth: string },
+    },
     JSON.stringify({
       title: "New user subscribed",
       body: message,
@@ -68,11 +79,20 @@ Bun.serve({
     "/api/subscribe": {
       GET: async () => new Response("Hello from Bun!"),
       POST: async (req) => {
-        const body = await req.json();
-        console.log(body);
+        const body = (await req.json()) as {
+          username: string;
+          endpoint: string;
+          keys: { p256dh: string; auth: string };
+        };
+        const user = (await db
+          .query("SELECT * FROM users WHERE username = ?")
+          .get(body.username)) as { username: string };
+        if (!user) {
+          return new Response(null, { status: 404, headers: corsHeaders });
+        }
         await addSubscriber({
           ...(body as PushSubscription),
-          userId: (body as PushSubscription).endpoint.slice(-3),
+          username: user.username,
         } as Subscriber);
 
         await sendNotificationToAll(
@@ -118,11 +138,14 @@ Bun.serve({
     "/api/message": {
       POST: async (req) => {
         const body = (await req.json()) as { to: string; message: string };
-        const subscriber = await getSubscriberById(body.to);
-        if (!subscriber) {
+        const subscribers = await getSubscribersByUsername(body.to);
+        console.log(subscribers);
+        if (subscribers.length === 0) {
           return new Response(null, { status: 404, headers: corsHeaders });
         }
-        await sendNotification(subscriber, body.message);
+        for (const subscriber of subscribers) {
+          await sendNotification(subscriber, body.message);
+        }
         return new Response(null, { status: 204, headers: corsHeaders });
       },
     },
