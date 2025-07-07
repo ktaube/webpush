@@ -21,15 +21,15 @@ const getSubscribers = async () => {
     return [];
   }
 };
-const getSubscribersByUsername = async (username: string) => {
+const getSubscriptionsByUsername = async (username: string) => {
   const user = (await db
     .query("SELECT * FROM users WHERE username = ?")
     .get(username)) as { username: string };
   if (!user) return [];
-  const subscribers = db
+  const subscriptions = db
     .query("SELECT * FROM subscriptions WHERE username = ?")
     .all(user.username) as Subscriber[];
-  return subscribers;
+  return subscriptions;
 };
 const addSubscriber = async (subscriber: Subscriber) => {
   db.query(
@@ -138,7 +138,7 @@ Bun.serve({
     "/api/message": {
       POST: async (req) => {
         const body = (await req.json()) as { to: string; message: string };
-        const subscribers = await getSubscribersByUsername(body.to);
+        const subscribers = await getSubscriptionsByUsername(body.to);
         console.log(subscribers);
         if (subscribers.length === 0) {
           return new Response(null, { status: 404, headers: corsHeaders });
@@ -167,6 +167,29 @@ Bun.serve({
         return Response.json(
           { username: body.username },
           { headers: corsHeaders }
+        );
+      },
+    },
+    "/api/user/:username": {
+      GET: async (req) => {
+        const user = (await db
+          .query("SELECT * FROM users WHERE username = ?")
+          .get(req.params.username)) as { username: string };
+        if (!user) {
+          return new Response(null, { status: 404, headers: corsHeaders });
+        }
+        const subscriptions = await getSubscriptionsByUsername(user.username);
+        return new Response(
+          JSON.stringify({
+            ...user,
+            subscriptions,
+          }),
+          {
+            headers: {
+              "Content-Type": "application/json",
+              ...corsHeaders,
+            },
+          }
         );
       },
     },

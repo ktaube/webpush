@@ -3,6 +3,7 @@ import "./App.css";
 import { useEffect, useState } from "react";
 import { API_URL } from "./api.ts";
 import { SubscriberList } from "./SubscriberList.tsx";
+import { User } from "./types.ts";
 
 // Taken from https://www.npmjs.com/package/web-push
 function urlBase64ToUint8Array(base64String: string) {
@@ -75,7 +76,7 @@ const unsubscribe = async () => {
   await subscription?.unsubscribe();
 };
 
-function App({ user }: { user: string }) {
+function App({ user }: { user: User }) {
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
@@ -90,7 +91,13 @@ function App({ user }: { user: string }) {
   return (
     <>
       <h1>Push Notifications</h1>
-      <p>Logged in as {user}</p>
+      <p>Logged in as {user.username}</p>
+      <p>Active subscriptions: {user.subscriptions.length}</p>
+      <ul>
+        {user.subscriptions.map((subscription) => (
+          <li key={subscription.endpoint}>{subscription.endpoint}</li>
+        ))}
+      </ul>
       <button
         onClick={() => {
           localStorage.removeItem("user");
