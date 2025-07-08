@@ -4,8 +4,8 @@ import db from "./db";
 
 webpush.setVapidDetails(
   "mailto:edymusajev@gmail.com",
-  "BJfExTPgtIEQijkCKExuIbZpYsIcft-RK88y9JJMJdHByfa5whISLNDqOgsmnlvgPZBlgQRSBMwq7ooKfsHJRvQ",
-  "0e55cJrdHkF16CHx7vCNQemv_ux1AyvFDbBL9vN6nDE"
+  process.env.VITE_VAPID_PUBLIC_KEY!,
+  process.env.VAPID_PRIVATE_KEY!
 );
 
 type Subscriber = PushSubscription & { username: string };
