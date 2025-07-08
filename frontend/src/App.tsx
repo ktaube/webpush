@@ -1,92 +1,11 @@
 import PWABadge from "./components/PWABadge.tsx";
 import "./App.css";
-import { useEffect, useState } from "react";
-import { API_URL } from "./api.ts";
 import { SubscriberList } from "./components/SubscriberList.tsx";
 import { User } from "./types.ts";
+import { useNotifications } from "./hooks/useNotifications";
 
-// Taken from https://www.npmjs.com/package/web-push
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = `${base64String}${padding}`
-    .replace(/-/g, "+")
-    .replace(/_/g, "/");
-
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-
-  for (let i = 0; i < rawData.length; ++i)
-    outputArray[i] = rawData.charCodeAt(i);
-
-  return outputArray;
-}
-
-const getServiceWorkerRegistration = async () => {
-  const registration = await navigator.serviceWorker.getRegistration();
-  if (!registration) throw new Error("No service worker registration found");
-  return registration;
-};
-
-const getPushNotificationSubscription = async () => {
-  const registration = await getServiceWorkerRegistration();
-  const subscribed = await registration.pushManager.getSubscription();
-  return subscribed;
-};
-
-const subscribe = async () => {
-  try {
-    const registration = await getServiceWorkerRegistration();
-    const subscription = await registration?.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(
-        import.meta.env.VITE_VAPID_PUBLIC_KEY
-      ),
-    });
-    if (!subscription) return;
-    const { endpoint, keys } = subscription.toJSON();
-    if (!endpoint || !keys) return;
-
-    // send subscription to backend
-    const res = await fetch(`${API_URL}/subscribe`, {
-      method: "POST",
-      body: JSON.stringify({
-        username: localStorage.getItem("user"),
-        endpoint,
-        keys: {
-          p256dh: keys.p256dh,
-          auth: keys.auth,
-        },
-      }),
-    });
-    if (!res.ok) throw new Error("Failed to send subscription to backend");
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const unsubscribe = async () => {
-  const subscription = await getPushNotificationSubscription();
-  console.log("??", subscription);
-  await fetch(`${API_URL}/subscribe`, {
-    method: "DELETE",
-    body: JSON.stringify(subscription),
-  });
-  await subscription?.unsubscribe();
-};
-
-function App({ user }: { user: User }) {
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-  useEffect(() => {
-    if (isSubscribed) return;
-    const init = async () => {
-      const subscription = await getPushNotificationSubscription();
-      setIsSubscribed(!!subscription);
-    };
-    init();
-  }, [isSubscribed]);
+function App({ user, onLogout }: { user: User; onLogout: () => void }) {
+  const { isSubscribed, subscribe, unsubscribe } = useNotifications();
 
   return (
     <>
@@ -98,23 +17,9 @@ function App({ user }: { user: User }) {
           <li key={subscription.endpoint}>{subscription.endpoint}</li>
         ))}
       </ul>
-      <button
-        onClick={() => {
-          localStorage.removeItem("user");
-          window.location.reload();
-        }}
-      >
-        Logout
-      </button>
+      <button onClick={onLogout}>Logout</button>
       {isSubscribed ? (
-        <button
-          onClick={async () => {
-            await unsubscribe();
-            setIsSubscribed(false);
-          }}
-        >
-          unsubscribe
-        </button>
+        <button onClick={unsubscribe}>unsubscribe</button>
       ) : (
         <button
           onClick={async () => {
@@ -122,7 +27,6 @@ function App({ user }: { user: User }) {
             console.log(permission);
             if (permission !== "granted") return;
             await subscribe();
-            setIsSubscribed(true);
           }}
         >
           subscribe

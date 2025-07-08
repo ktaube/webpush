@@ -1,14 +1,11 @@
 import { useRef } from "react";
-import { API_URL } from "../api";
+import { sendMessage } from "../api/messages";
 
 export const SendMessage = ({ to }: { to: string }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const send = async (formData: FormData) => {
-    const message = formData.get("message");
-    await fetch(`${API_URL}/message`, {
-      method: "POST",
-      body: JSON.stringify({ message, to }),
-    });
+    const message = formData.get("message") as string;
+    await sendMessage(to, message);
     dialogRef.current?.close();
   };
   return (

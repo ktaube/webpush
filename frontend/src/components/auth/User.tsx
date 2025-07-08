@@ -1,23 +1,11 @@
-import { useEffect, useState } from "react";
-import { API_URL } from "../../api";
 import App from "../../App";
-import { User } from "../../types";
+import { useAuth } from "../../hooks/useAuth";
 
-const CreateUser = ({
-  setUsername,
-}: {
-  setUsername: (username: string) => void;
-}) => {
+const CreateUser = ({ onLogin }: { onLogin: (username: string) => void }) => {
   const send = async (formData: FormData) => {
     try {
-      const username = formData.get("username");
-      const res = await fetch(`${API_URL}/user`, {
-        method: "POST",
-        body: JSON.stringify({ username }),
-      });
-      const data = await res.json();
-      localStorage.setItem("user", data.username);
-      setUsername(data.username);
+      const username = formData.get("username") as string;
+      onLogin(username);
     } catch (error) {
       console.error(error);
       alert("Failed to create user");
@@ -37,29 +25,14 @@ const CreateUser = ({
   );
 };
 
-const Authenticated = ({ username }: { username: string }) => {
-  const [user, setUser] = useState<User | null>(null);
-  useEffect(() => {
-    const fetchUser = async () => {
-      const res = await fetch(`${API_URL}/user/${username}`, {
-        headers: {
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-      const data = await res.json();
-      console.log(data);
-      setUser(data);
-    };
-    fetchUser();
-  }, [username]);
+export const Login = () => {
+  const { username, user, isLoading, login, logout } = useAuth();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  if (!username) return <CreateUser onLogin={login} />;
 
   if (!user) return <div>Loading...</div>;
-  return <App user={user} />;
-};
 
-export const Login = () => {
-  const [username, setUsername] = useState(localStorage.getItem("user"));
-
-  if (!username) return <CreateUser setUsername={setUsername} />;
-  return <Authenticated username={username} />;
+  return <App user={user} onLogout={logout} />;
 };

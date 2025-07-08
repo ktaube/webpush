@@ -1,21 +1,11 @@
-import { useEffect, useState } from "react";
-import { API_URL } from "../api";
 import { SendMessage } from "./SendMessage";
-
-type Subscriber = PushSubscription & { username: string };
+import { useSubscribers } from "../hooks/useSubscribers";
 
 export const SubscriberList = () => {
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  useEffect(() => {
-    fetch(`${API_URL}/subscribers`, {
-      headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setSubscribers(data));
-  }, []);
+  const { subscribers, isLoading } = useSubscribers();
+
+  if (isLoading) return <div>Loading subscribers...</div>;
+
   return (
     <div>
       {subscribers.map((subscriber) => (
