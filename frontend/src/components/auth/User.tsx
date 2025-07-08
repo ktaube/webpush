@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { API_URL } from "./api";
-import App from "./App";
-import { User } from "./types";
+import { API_URL } from "../../api";
+import App from "../../App";
+import { User } from "../../types";
 
 const CreateUser = ({
   setUsername,

@@ -1,6 +1,6 @@
 import type { Subscriber } from "..";
 import { corsHeaders } from "../cors";
-import db from "../db";
+import db from "../lib/db";
 
 export const login = async (username: string) => {
   const user = (await db

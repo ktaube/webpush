@@ -1,16 +1,11 @@
-import webpush, { type PushSubscription } from "web-push";
+import { type PushSubscription } from "web-push";
 import { corsHeaders } from "./cors";
 import { userByUsernameRoutes, userRoutes, messageRoutes } from "./users/users.routes";
 import {
   subscribeRoutes,
   subscribersRoutes,
 } from "./subscriptions/subscriptions.routes";
-
-webpush.setVapidDetails(
-  "mailto:edymusajev@gmail.com",
-  process.env.VITE_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+import "./lib/vapid";
 
 export type Subscriber = PushSubscription & { username: string };
 

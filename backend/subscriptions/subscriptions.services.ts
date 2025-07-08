@@ -1,7 +1,8 @@
 import type { Subscriber } from "..";
 import { corsHeaders } from "../cors";
-import db from "../db";
-import webpush, { type PushSubscription } from "web-push";
+import db from "../lib/db";
+import webpush from "../lib/vapid";
+import { type PushSubscription } from "web-push";
 
 export const getSubscribers = async () => {
   try {

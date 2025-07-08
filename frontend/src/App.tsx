@@ -1,8 +1,8 @@
-import PWABadge from "./PWABadge.tsx";
+import PWABadge from "./components/PWABadge.tsx";
 import "./App.css";
 import { useEffect, useState } from "react";
 import { API_URL } from "./api.ts";
-import { SubscriberList } from "./SubscriberList.tsx";
+import { SubscriberList } from "./components/SubscriberList.tsx";
 import { User } from "./types.ts";
 
 // Taken from https://www.npmjs.com/package/web-push
