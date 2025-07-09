@@ -42,8 +42,8 @@ export const useNotifications = () => {
         p256dh: keys.p256dh,
         auth: keys.auth,
       });
-
       setIsSubscribed(true);
+      window.location.reload();
     } catch (error) {
       console.error(error);
     }
@@ -57,6 +57,7 @@ export const useNotifications = () => {
       await unsubscribeFromNotifications(subscription);
       await subscription.unsubscribe();
       setIsSubscribed(false);
+      window.location.reload();
     } catch (error) {
       console.error(error);
     }

@@ -11,5 +11,4 @@ export const sendMessage = async (to: string, message: string) => {
   });
   
   if (!res.ok) throw new Error("Failed to send message");
-  return res.json();
 };

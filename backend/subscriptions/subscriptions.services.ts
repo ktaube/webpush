@@ -23,15 +23,18 @@ export const sendNotificationToAll = async (message: string) => {
   }
 };
 
-export const sendNotification = async (subscriber: Subscriber, message: string) => {
+export const sendNotification = async (subscriber: Subscriber, message: string, options?: { title?: string; fromUsername?: string }) => {
+  const title = options?.title || "New user subscribed";
+  const body = options?.fromUsername ? message : message;
+  
   await webpush.sendNotification(
     {
       ...subscriber,
       keys: JSON.parse(subscriber.keys) as { p256dh: string; auth: string },
     },
     JSON.stringify({
-      title: "New user subscribed",
-      body: message,
+      title,
+      body,
     })
   );
 };
@@ -54,7 +57,7 @@ export const createSubscriber = async (body: {
   if (!subscriber) return null;
 
   await sendNotificationToAll(
-    `Say hello to ${(body as PushSubscription).endpoint.slice(-3)}!`
+    `Say hello to ${body.username}!`
   );
 
   return subscriber;
