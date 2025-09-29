@@ -2,6 +2,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import tailwindcss from "@tailwindcss/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,6 +12,7 @@ export default defineConfig({
       autoCodeSplitting: true,
     }),
     react(),
+    tailwindcss(),
     VitePWA({
       strategies: "injectManifest",
       srcDir: "src",

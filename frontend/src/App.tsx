@@ -1,5 +1,4 @@
 import PWABadge from "./components/PWABadge.tsx";
-import "./App.css";
 import { SubscriberList } from "./components/SubscriberList.tsx";
 import { User } from "./types.ts";
 import { useNotifications } from "./hooks/useNotifications";
