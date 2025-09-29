@@ -12,8 +12,6 @@ A full-stack web push notification system built with React, TypeScript, and Bun 
 1. Install dependencies:
 ```bash
 bun install
-cd backend && bun install
-cd frontend && bun install
 ```
 
 2. Generate VAPID keys:
@@ -50,7 +48,7 @@ Currently deployed at: https://current-adapted-adder.ngrok-free.app/
 
 ⚠️ **This application only works when installed as a Progressive Web App (PWA).**
 
-1. Visit the deployed URL
+1. Visit the deployed UR
 2. Install the PWA using your browser's install prompt
 3. Open the installed app to access push notifications
 
@@ -62,3 +60,4 @@ The PWA requirement is necessary for service worker registration and background 
 - **Frontend**: React 19 + TypeScript + Vite + PWA
 - **Database**: SQLite
 - **Push Service**: VAPID-based web push notifications
+

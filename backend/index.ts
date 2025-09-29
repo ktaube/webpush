@@ -10,7 +10,7 @@ import "./lib/vapid";
 export type Subscriber = PushSubscription & { username: string };
 
 Bun.serve({
-  port: 8080,
+  port: 9090,
   fetch: async (req) => {
     const res = new Response(null, {
       headers: corsHeaders,

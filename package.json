@@ -3,5 +3,9 @@
   "scripts": {
     "build": "cd frontend && bun run build",
     "dev": "bun run backend/index.ts & cd frontend && bun run preview"
-  }
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
 }
