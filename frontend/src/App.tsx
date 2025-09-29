@@ -5,6 +5,8 @@ import { User } from "./types.ts";
 import { useNotifications } from "./hooks/useNotifications";
 
 function App({ user, onLogout }: { user: User; onLogout: () => void }) {
+  console.log("user", user);
+
   const { isSubscribed, subscribe, unsubscribe } = useNotifications();
 
   return (

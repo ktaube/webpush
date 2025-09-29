@@ -1,91 +1,77 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
+  <head>
+    <meta charset="UTF-8" />
 
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, user-scalable=no"
-        />
-        <title>frontend + TS</title>
-        <script>
-            if (window.location.hostname.includes("ngrok")) {
-                document.addEventListener("DOMContentLoaded", function () {
-                    setTimeout(() => {
-                        const manifestLinks = document.querySelectorAll(
-                            'link[rel="manifest"]',
-                        );
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>frontend + TS</title>
+    <script>
+      if (window.location.hostname.includes("ktservices")) {
+        document.addEventListener("DOMContentLoaded", function () {
+          setTimeout(() => {
+            const manifestLinks = document.querySelectorAll(
+              'link[rel="manifest"]'
+            );
 
-                        manifestLinks.forEach((link) => {
-                            const originalHref = link.href;
+            manifestLinks.forEach((link) => {
+              const originalHref = link.href;
 
-                            fetch(originalHref, {
-                                headers: {
-                                    "ngrok-skip-browser-warning": "true",
-                                },
-                            })
-                                .then((response) => response.text())
-                                .then((manifestText) => {
-                                    // Parse and fix relative URLs
-                                    const manifest = JSON.parse(manifestText);
-                                    const baseUrl = window.location.origin;
+              fetch(originalHref, {
+                headers: {
+                  "ngrok-skip-browser-warning": "true",
+                },
+              })
+                .then((response) => response.text())
+                .then((manifestText) => {
+                  // Parse and fix relative URLs
+                  const manifest = JSON.parse(manifestText);
+                  const baseUrl = window.location.origin;
 
-                                    // Fix relative URLs
-                                    if (
-                                        manifest.start_url &&
-                                        !manifest.start_url.startsWith("http")
-                                    ) {
-                                        manifest.start_url =
-                                            baseUrl +
-                                            (manifest.start_url.startsWith("/")
-                                                ? ""
-                                                : "/") +
-                                            manifest.start_url;
-                                    }
-                                    if (
-                                        manifest.scope &&
-                                        !manifest.scope.startsWith("http")
-                                    ) {
-                                        manifest.scope =
-                                            baseUrl +
-                                            (manifest.scope.startsWith("/")
-                                                ? ""
-                                                : "/") +
-                                            manifest.scope;
-                                    }
-                                    if (manifest.icons) {
-                                        manifest.icons.forEach((icon) => {
-                                            if (
-                                                icon.src &&
-                                                !icon.src.startsWith("http")
-                                            ) {
-                                                icon.src =
-                                                    baseUrl +
-                                                    (icon.src.startsWith("/")
-                                                        ? ""
-                                                        : "/") +
-                                                    icon.src;
-                                            }
-                                        });
-                                    }
+                  // Fix relative URLs
+                  if (
+                    manifest.start_url &&
+                    !manifest.start_url.startsWith("http")
+                  ) {
+                    manifest.start_url =
+                      baseUrl +
+                      (manifest.start_url.startsWith("/") ? "" : "/") +
+                      manifest.start_url;
+                  }
+                  if (manifest.scope && !manifest.scope.startsWith("http")) {
+                    manifest.scope =
+                      baseUrl +
+                      (manifest.scope.startsWith("/") ? "" : "/") +
+                      manifest.scope;
+                  }
+                  if (manifest.icons) {
+                    manifest.icons.forEach((icon) => {
+                      if (icon.src && !icon.src.startsWith("http")) {
+                        icon.src =
+                          baseUrl +
+                          (icon.src.startsWith("/") ? "" : "/") +
+                          icon.src;
+                      }
+                    });
+                  }
 
-                                    const blob = new Blob(
-                                        [JSON.stringify(manifest)],
-                                        { type: "application/manifest+json" },
-                                    );
-                                    const manifestUrl =
-                                        URL.createObjectURL(blob);
-                                    link.href = manifestUrl;
-                                })
-                                .catch(console.error);
-                        });
-                    }, 100);
-                });
-            }
-        </script>
-    </head>
-    <body>
-        <div id="root"></div>
-        <script type="module" src="/src/main.tsx"></script>
-    </body>
+                  const blob = new Blob([JSON.stringify(manifest)], {
+                    type: "application/manifest+json",
+                  });
+                  const manifestUrl = URL.createObjectURL(blob);
+                  link.href = manifestUrl;
+                })
+                .catch(console.error);
+            });
+          }, 100);
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

@@ -1,5 +1,9 @@
 import { corsHeaders } from "../cors";
-import { getUserSubscriptions, login, getSubscriptionsByUsername } from "./users.services";
+import {
+  getUserSubscriptions,
+  login,
+  getSubscriptionsByUsername,
+} from "./users.services";
 import { sendNotification } from "../subscriptions/subscriptions.services";
 
 export const userRoutes = {
@@ -13,13 +17,20 @@ export const userRoutes = {
 export const userByUsernameRoutes = {
   GET: async (req: Bun.BunRequest<"/api/user/:username">) => {
     const subscriptions = await getUserSubscriptions(req.params.username);
-    return Response.json({ subscriptions }, { headers: corsHeaders });
+    return Response.json(
+      { subscriptions, username: req.params.username },
+      { headers: corsHeaders }
+    );
   },
 };
 
 export const messageRoutes = {
   POST: async (req: Bun.BunRequest<"/api/message">) => {
-    const body = (await req.json()) as { to: string; message: string; from?: string };
+    const body = (await req.json()) as {
+      to: string;
+      message: string;
+      from?: string;
+    };
     const subscribers = await getSubscriptionsByUsername(body.to);
     console.log(subscribers);
     if (subscribers.length === 0) {
@@ -27,7 +38,10 @@ export const messageRoutes = {
     }
     for (const subscriber of subscribers) {
       const title = body.from ? `Message from ${body.from}` : "New message";
-      await sendNotification(subscriber, body.message, { title, fromUsername: body.from });
+      await sendNotification(subscriber, body.message, {
+        title,
+        fromUsername: body.from,
+      });
     }
     return new Response(null, { status: 204, headers: corsHeaders });
   },
