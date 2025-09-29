@@ -1,6 +1,10 @@
 import { type PushSubscription } from "web-push";
 import { corsHeaders } from "./cors";
-import { userByUsernameRoutes, userRoutes, messageRoutes } from "./users/users.routes";
+import {
+  userByUsernameRoutes,
+  userRoutes,
+  messageRoutes,
+} from "./users/users.routes";
 import {
   subscribeRoutes,
   subscribersRoutes,
@@ -19,6 +23,7 @@ Bun.serve({
     return res;
   },
   routes: {
+    "/": index,
     "/api/subscribe": subscribeRoutes,
     "/api/subscribers": subscribersRoutes,
     "/api/message": messageRoutes,
@@ -28,3 +33,7 @@ Bun.serve({
 });
 
 console.log("Hello via Bun!");
+
+function index(req: Request) {
+  return new Response("Hello, world!", { headers: corsHeaders });
+}

@@ -1,1 +1,1 @@
-export const API_URL = "https://c998f5801f64.ngrok-free.app/api";
+export const API_URL = "https://ember-notifications.ktservices.dev/api";

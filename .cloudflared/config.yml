@@ -1,0 +1,10 @@
+tunnel: c192f246-bbeb-4870-86f9-5e601243abdd
+credentials-file: ~/.cloudflared/c192f246-bbeb-4870-86f9-5e601243abdd.json
+
+ingress:
+  - hostname: ember-notifications.ktservices.dev
+    path: /api/*
+    service: http://localhost:9090
+  - hostname: ember-notifications.ktservices.dev
+    service: http://localhost:4173
+  - service: http_status:404

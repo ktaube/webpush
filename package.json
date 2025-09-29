@@ -2,7 +2,8 @@
   "name": "webpush",
   "scripts": {
     "build": "cd frontend && bun run build",
-    "dev": "bun run backend/index.ts & cd frontend && bun run preview"
+    "dev": "bun run backend/index.ts & cd frontend && bun run preview",
+    "tunnel": "cloudflared tunnel --config .cloudflared/config.yml run c192f246-bbeb-4870-86f9-5e601243abdd"
   },
   "workspaces": [
     "backend",
