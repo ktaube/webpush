@@ -1,1 +1,1 @@
-export const API_URL = "https://ember-notifications.ktservices.dev/api";
+export const API_URL = import.meta.env.VITE_BACKEND_API_URL!;
