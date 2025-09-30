@@ -1,0 +1,8 @@
+{
+  "name": "tunnel",
+  "version": "1.0.0",
+  "scripts": {
+    "dev:tunnel": "cloudflared tunnel --config ./config.yml run c192f246-bbeb-4870-86f9-5e601243abdd"
+  }
+}
+

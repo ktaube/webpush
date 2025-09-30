@@ -2,7 +2,7 @@ import type { Subscriber } from "..";
 import { corsHeaders } from "../cors";
 import db from "../lib/db";
 
-export const login = async (username: string) => {
+export const insertUser = async (username: string) => {
   const user = (await db
     .query("SELECT * FROM users WHERE username = ?")
     .get(username)) as { username: string };
@@ -13,17 +13,17 @@ export const login = async (username: string) => {
   }
 };
 
-export const getUserSubscriptions = async (username: string) => {
+export const getUserByUsername = async (username: string) => {
   const user = (await db
     .query("SELECT * FROM users WHERE username = ?")
-    .get(username)) as { username: string };
+    .get(username)) as { id: number; username: string };
   if (!user) {
     return new Response(null, { status: 404, headers: corsHeaders });
   }
   const subscriptions = db
     .query("SELECT * FROM subscriptions WHERE username = ?")
     .all(user.username) as Subscriber[];
-  return subscriptions;
+  return { id: user.id, username: user.username, subscriptions };
 };
 
 export const getSubscriptionsByUsername = async (username: string) => {

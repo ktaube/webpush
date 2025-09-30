@@ -10,7 +10,7 @@ export const createUser = async (username: string) => {
     },
     body: JSON.stringify({ username }),
   });
-  
+
   if (!res.ok) throw new Error("Failed to create user");
   return res.json();
 };
@@ -22,7 +22,7 @@ export const getUser = async (username: string): Promise<User> => {
       "ngrok-skip-browser-warning": "true",
     },
   });
-  
+
   if (!res.ok) throw new Error("Failed to fetch user");
   return res.json();
 };

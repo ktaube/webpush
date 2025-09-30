@@ -1,7 +1,7 @@
 import { corsHeaders } from "../cors";
 import {
-  getUserSubscriptions,
-  login,
+  getUserByUsername,
+  insertUser,
   getSubscriptionsByUsername,
 } from "./users.services";
 import { sendNotification } from "../subscriptions/subscriptions.services";
@@ -9,18 +9,15 @@ import { sendNotification } from "../subscriptions/subscriptions.services";
 export const userRoutes = {
   POST: async (req: Bun.BunRequest<"/api/user">) => {
     const body = (await req.json()) as { username: string };
-    await login(body.username);
+    await insertUser(body.username);
     return Response.json({ username: body.username }, { headers: corsHeaders });
   },
 };
 
 export const userByUsernameRoutes = {
   GET: async (req: Bun.BunRequest<"/api/user/:username">) => {
-    const subscriptions = await getUserSubscriptions(req.params.username);
-    return Response.json(
-      { subscriptions, username: req.params.username },
-      { headers: corsHeaders }
-    );
+    const data = await getUserByUsername(req.params.username);
+    return Response.json(data, { headers: corsHeaders });
   },
 };
 
