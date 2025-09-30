@@ -62,16 +62,37 @@ export const subscribeMutationOptions = (username: string) =>
   mutationOptions({
     mutationKey: ["subscribe", username],
     mutationFn: async () => {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        throw new Error("Notification permission denied");
+      }
+
       const registration = await navigator.serviceWorker.getRegistration();
       if (!registration) {
         throw new Error("No service worker registration found");
       }
+
+      // Check for existing subscription and unsubscribe first
+      const existingSubscription =
+        await registration.pushManager.getSubscription();
+      if (existingSubscription) {
+        console.log(
+          "🥦 Unsubscribing existing subscription before creating new one"
+        );
+        await existingSubscription.unsubscribe();
+        // Small delay to ensure cleanup completes
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      const vapidKey = urlBase64ToUint8Array(
+        import.meta.env.VITE_VAPID_PUBLIC_KEY
+      );
+
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(
-          import.meta.env.VITE_VAPID_PUBLIC_KEY
-        ),
+        applicationServerKey: vapidKey,
       });
+      console.log("🥦 subscription", subscription);
       const { endpoint, keys } = subscription.toJSON();
 
       if (!endpoint || !keys) {
@@ -88,7 +109,7 @@ export const subscribeMutationOptions = (username: string) =>
       );
 
       console.log(
-        "🥦 subscribeToNotificationsRes",
+        "Subscribe to notifications response",
         JSON.stringify(subscribeToNotificationsRes, null, 2)
       );
 
@@ -99,10 +120,7 @@ export const subscribeMutationOptions = (username: string) =>
 const unsubscribeFromNotifications = async (subscription: PushSubscription) => {
   const res = await fetch(`${API_URL}/subscribe`, {
     method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      "ngrok-skip-browser-warning": "true",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(subscription),
   });
 
@@ -118,23 +136,26 @@ export const unsubscribeMutationOptions = (username: string) =>
       if (!registration) {
         throw new Error("No service worker registration found");
       }
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(
-          import.meta.env.VITE_VAPID_PUBLIC_KEY
-        ),
-      });
+
+      const subscription = await registration.pushManager.getSubscription();
+
+      if (!subscription) {
+        throw new Error("No active subscription found");
+      }
 
       const res = await unsubscribeFromNotifications(subscription);
 
       console.log(
-        "🥦 unsubscribeFromNotificationsRes",
+        "Unsubscribe from notifications delete response",
         JSON.stringify(res, null, 2)
       );
 
       const unsubscribeRes = await subscription.unsubscribe();
 
-      console.log("🥦 unsubscribeRes", JSON.stringify(unsubscribeRes, null, 2));
+      console.log(
+        "Unsubscribe from notifications response",
+        JSON.stringify(unsubscribeRes, null, 2)
+      );
 
       return { isSubscribed: false };
     },

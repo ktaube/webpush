@@ -1,5 +1,9 @@
 import { corsHeaders } from "../cors";
-import { createSubscriber, removeSubscriber, getSubscribers } from "./subscriptions.services";
+import {
+  createSubscriber,
+  removeSubscriber,
+  getSubscribers,
+} from "./subscriptions.services";
 import type { Subscriber } from "..";
 
 export const subscribeRoutes = {
@@ -31,6 +35,8 @@ export const subscribeRoutes = {
   },
   DELETE: async (req: Bun.BunRequest<"/api/subscribe">) => {
     const body = await req.json();
+    console.log("🥦 Unsubscribing subscriber", body);
+
     await removeSubscriber(body as Subscriber);
     return new Response(null, {
       status: 204,
