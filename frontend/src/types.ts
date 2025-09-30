@@ -1,5 +1,5 @@
 export type Subscription = {
-  id: string;
+  id: number;
   endpoint: string;
 };
 

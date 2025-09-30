@@ -1,14 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { queryClient } from "../query-client";
-import {
-  getUserQueryOptions,
-  subscribeMutationOptions,
-  unsubscribeMutationOptions,
-} from "./-queries";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import PWABadge from "../components/PWABadge";
 import { SubscriberList } from "../components/SubscriberList";
-import { Fragment } from "react/jsx-runtime";
+import { queryClient } from "../query-client";
+import { Subscriber } from "./-components/Subscriber";
+import { getUserQueryOptions, subscribeMutationOptions } from "./-queries";
 
 export const Route = createFileRoute("/users/$username")({
   component: RouteComponent,
@@ -37,12 +33,6 @@ function RouteComponent() {
       refetch();
     },
   });
-  const unsubscribeMutation = useMutation({
-    ...unsubscribeMutationOptions(username),
-    onSuccess: () => {
-      refetch();
-    },
-  });
 
   return (
     <main>
@@ -54,25 +44,11 @@ function RouteComponent() {
         <p>Active subscriptions: {user.subscriptions.length}</p>
         <div className="flex flex-col gap-2 max-w-2xl">
           {user.subscriptions.map((subscription) => (
-            <Fragment key={subscription.id}>
-              <pre className="text-sm bg-amber-100 p-2 rounded-md border border-amber-200 break-all whitespace-pre-wrap">
-                {subscription.endpoint}
-              </pre>
-              <button
-                className="w-full"
-                key={subscription.endpoint}
-                onClick={() =>
-                  unsubscribeMutation.mutate(undefined, {
-                    onError: (error) => {
-                      console.error(error);
-                    },
-                  })
-                }
-                disabled={unsubscribeMutation.isPending}
-              >
-                Unsubscribe
-              </button>
-            </Fragment>
+            <Subscriber
+              key={subscription.id}
+              subscription={subscription}
+              onUnsubscribe={() => refetch()}
+            />
           ))}
         </div>
       </section>

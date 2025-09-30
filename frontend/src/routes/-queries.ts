@@ -117,21 +117,21 @@ export const subscribeMutationOptions = (username: string) =>
     },
   });
 
-const unsubscribeFromNotifications = async (subscription: PushSubscription) => {
+const unsubscribeFromNotifications = async (subscriptionId: number) => {
   const res = await fetch(`${API_URL}/subscribe`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(subscription),
+    body: JSON.stringify({ id: subscriptionId }),
   });
 
   if (!res.ok) throw new Error("Failed to unsubscribe from notifications");
   return res;
 };
 
-export const unsubscribeMutationOptions = (username: string) =>
+export const unsubscribeMutationOptions = () =>
   mutationOptions({
-    mutationKey: ["unsubscribe", username],
-    mutationFn: async () => {
+    mutationKey: ["unsubscribe"],
+    mutationFn: async (subscriptionId: number) => {
       const registration = await navigator.serviceWorker.getRegistration();
       if (!registration) {
         throw new Error("No service worker registration found");
@@ -140,23 +140,31 @@ export const unsubscribeMutationOptions = (username: string) =>
       const subscription = await registration.pushManager.getSubscription();
 
       if (!subscription) {
-        throw new Error("No active subscription found");
+        console.log("No active subscription found");
+      } else {
+        const unsubscribeRes = await subscription.unsubscribe();
+        console.log(
+          "Unsubscribe from notifications response",
+          JSON.stringify(unsubscribeRes, null, 2)
+        );
       }
 
-      const res = await unsubscribeFromNotifications(subscription);
+      const res = await unsubscribeFromNotifications(subscriptionId);
 
       console.log(
         "Unsubscribe from notifications delete response",
         JSON.stringify(res, null, 2)
       );
 
-      const unsubscribeRes = await subscription.unsubscribe();
-
-      console.log(
-        "Unsubscribe from notifications response",
-        JSON.stringify(unsubscribeRes, null, 2)
-      );
-
       return { isSubscribed: false };
+    },
+  });
+
+export const getPushManagerSubscriptionQueryOptions = () =>
+  queryOptions({
+    queryKey: ["pushManagerSubscription"],
+    queryFn: async () => {
+      const registration = await navigator.serviceWorker.getRegistration();
+      return registration?.pushManager.getSubscription();
     },
   });

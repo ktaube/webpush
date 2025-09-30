@@ -23,10 +23,14 @@ export const sendNotificationToAll = async (message: string) => {
   }
 };
 
-export const sendNotification = async (subscriber: Subscriber, message: string, options?: { title?: string; fromUsername?: string }) => {
+export const sendNotification = async (
+  subscriber: Subscriber,
+  message: string,
+  options?: { title?: string; fromUsername?: string }
+) => {
   const title = options?.title || "New user subscribed";
   const body = options?.fromUsername ? message : message;
-  
+
   await webpush.sendNotification(
     {
       ...subscriber,
@@ -56,15 +60,11 @@ export const createSubscriber = async (body: {
 
   if (!subscriber) return null;
 
-  await sendNotificationToAll(
-    `Say hello to ${body.username}!`
-  );
+  await sendNotificationToAll(`Say hello to ${body.username}!`);
 
   return subscriber;
 };
 
-export const removeSubscriber = async (subscriber: Subscriber) => {
-  db.query("DELETE FROM subscriptions WHERE endpoint = ?").run(
-    subscriber.endpoint
-  );
+export const removeSubscriber = async (subscriptionId: number) => {
+  db.query("DELETE FROM subscriptions WHERE id = ?").run(subscriptionId);
 };

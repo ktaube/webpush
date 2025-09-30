@@ -34,10 +34,8 @@ export const subscribeRoutes = {
     return res;
   },
   DELETE: async (req: Bun.BunRequest<"/api/subscribe">) => {
-    const body = await req.json();
-    console.log("🥦 Unsubscribing subscriber", body);
-
-    await removeSubscriber(body as Subscriber);
+    const body = (await req.json()) as { id: number };
+    await removeSubscriber(body.id);
     return new Response(null, {
       status: 204,
       headers: corsHeaders,
