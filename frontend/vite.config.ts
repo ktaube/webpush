@@ -47,5 +47,5 @@ export default defineConfig({
   server: {
     allowedHosts: ["ember-notifications.ktservices.dev"],
   },
-  base: "./",
+  base: "/",
 });
