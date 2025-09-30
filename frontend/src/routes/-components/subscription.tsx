@@ -1,12 +1,12 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   getPushManagerSubscriptionQueryOptions,
+  sendMessageMutationOptions,
   unsubscribeMutationOptions,
 } from "../-queries";
 import { Subscription } from "../../types";
 import { cn } from "../../utils/cn";
 import { useRef } from "react";
-import { sendMessage } from "../../api/messages";
 
 type Props = {
   username: string;
@@ -14,7 +14,7 @@ type Props = {
   onUnsubscribe: () => void;
 };
 
-export const Subscriber = ({
+export const SubscriptionItem = ({
   subscription,
   onUnsubscribe,
   username,
@@ -32,13 +32,19 @@ export const Subscriber = ({
     },
   });
 
+  const sendMessageMutation = useMutation({
+    ...sendMessageMutationOptions(),
+    onSuccess: () => {
+      dialogRef.current?.close();
+    },
+  });
+
   const isLocal = pushManagerSubscription?.endpoint === subscription.endpoint;
   const disabledClassNames = "w-full opacity-50 cursor-not-allowed";
 
   const send = async (formData: FormData) => {
     const message = formData.get("message") as string;
-    await sendMessage(username, message);
-    dialogRef.current?.close();
+    await sendMessageMutation.mutateAsync({ to: username, message });
   };
 
   return (

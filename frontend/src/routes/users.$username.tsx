@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import PWABadge from "../components/PWABadge";
 import { queryClient } from "../query-client";
-import { Subscriber } from "./-components/Subscriber";
+import { SubscriptionItem } from "./-components/subscription";
 import { getUserQueryOptions, subscribeMutationOptions } from "./-queries";
 
 export const Route = createFileRoute("/users/$username")({
@@ -43,7 +43,7 @@ function RouteComponent() {
         <p>Active subscriptions: {user.subscriptions.length}</p>
         <div className="flex flex-col gap-1 max-w-2xl">
           {user.subscriptions.map((subscription) => (
-            <Subscriber
+            <SubscriptionItem
               key={subscription.id}
               username={user.username}
               subscription={subscription}

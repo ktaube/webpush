@@ -1,6 +1,7 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import { API_URL } from "../api/config";
 import { User } from "../types";
+
+export const API_URL = import.meta.env.VITE_BACKEND_API_URL!;
 
 export const getUserQueryOptions = (username: string) =>
   queryOptions<User>({
@@ -166,5 +167,26 @@ export const getPushManagerSubscriptionQueryOptions = () =>
     queryFn: async () => {
       const registration = await navigator.serviceWorker.getRegistration();
       return registration?.pushManager.getSubscription();
+    },
+  });
+
+export const sendMessage = async (to: string, message: string) => {
+  const res = await fetch(`${API_URL}/message`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+    },
+    body: JSON.stringify({ message, to }),
+  });
+
+  if (!res.ok) throw new Error("Failed to send message");
+};
+
+export const sendMessageMutationOptions = () =>
+  mutationOptions({
+    mutationKey: ["sendMessage"],
+    mutationFn: async ({ to, message }: { to: string; message: string }) => {
+      return await sendMessage(to, message);
     },
   });
