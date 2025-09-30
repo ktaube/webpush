@@ -11,7 +11,11 @@ import {
 } from "./subscriptions/subscriptions.routes";
 import "./lib/vapid";
 
-export type Subscriber = PushSubscription & { username: string; id: string };
+export type Subscriber = PushSubscription & {
+  username: string;
+  id: string;
+  keys: string;
+};
 
 Bun.serve({
   port: 9090,

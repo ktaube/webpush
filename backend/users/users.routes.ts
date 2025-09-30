@@ -28,6 +28,8 @@ export const messageRoutes = {
       message: string;
       from?: string;
     };
+    console.log("body", body);
+
     const subscribers = await getSubscriptionsByUsername(body.to);
     console.log(subscribers);
     if (subscribers.length === 0) {

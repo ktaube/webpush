@@ -2,7 +2,6 @@ import type { Subscriber } from "..";
 import { corsHeaders } from "../cors";
 import db from "../lib/db";
 import webpush from "../lib/vapid";
-import { type PushSubscription } from "web-push";
 
 export const getSubscribers = async () => {
   try {
@@ -30,6 +29,8 @@ export const sendNotification = async (
 ) => {
   const title = options?.title || "New user subscribed";
   const body = options?.fromUsername ? message : message;
+
+  console.log("🥦 subscriber", subscriber, body);
 
   await webpush.sendNotification(
     {

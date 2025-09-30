@@ -5,18 +5,25 @@ import {
 } from "../-queries";
 import { Subscription } from "../../types";
 import { cn } from "../../utils/cn";
+import { useRef } from "react";
+import { sendMessage } from "../../api/messages";
 
 type Props = {
+  username: string;
   subscription: Subscription;
   onUnsubscribe: () => void;
 };
 
-export const Subscriber = ({ subscription, onUnsubscribe }: Props) => {
+export const Subscriber = ({
+  subscription,
+  onUnsubscribe,
+  username,
+}: Props) => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
   const { data: pushManagerSubscription } = useQuery({
     ...getPushManagerSubscriptionQueryOptions(),
   });
-
-  console.log("pushManagerSubscription", pushManagerSubscription);
 
   const unsubscribeMutation = useMutation({
     ...unsubscribeMutationOptions(),
@@ -26,14 +33,13 @@ export const Subscriber = ({ subscription, onUnsubscribe }: Props) => {
   });
 
   const isLocal = pushManagerSubscription?.endpoint === subscription.endpoint;
-  console.log(
-    "isLocal",
-    isLocal,
-    pushManagerSubscription?.endpoint,
-    subscription.endpoint
-  );
-
   const disabledClassNames = "w-full opacity-50 cursor-not-allowed";
+
+  const send = async (formData: FormData) => {
+    const message = formData.get("message") as string;
+    await sendMessage(username, message);
+    dialogRef.current?.close();
+  };
 
   return (
     <>
@@ -54,6 +60,16 @@ export const Subscriber = ({ subscription, onUnsubscribe }: Props) => {
       >
         Unsubscribe
       </button>
+      <button className="w-full" onClick={() => dialogRef.current?.showModal()}>
+        Send message
+      </button>
+      <dialog ref={dialogRef} onClose={() => dialogRef.current?.close()}>
+        <h2>Send message to {username}</h2>
+        <form action={send}>
+          <textarea name="message" placeholder="Message" />
+          <button type="submit">Send</button>
+        </form>
+      </dialog>
     </>
   );
 };
