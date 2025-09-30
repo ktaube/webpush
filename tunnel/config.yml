@@ -6,5 +6,5 @@ ingress:
     path: /api/*
     service: http://localhost:9090
   - hostname: ember-notifications.ktservices.dev
-    service: http://localhost:4173
+    service: http://localhost:5173
   - service: http_status:404

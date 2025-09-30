@@ -18,15 +18,28 @@ self.addEventListener("push", (event) => {
     const data = event.data?.json();
     console.log("📦 Push data:", data);
 
+    const notificationOptions = {
+      body: data.body,
+      icon: "/pwa-192x192.png",
+      badge: "/pwa-64x64.png",
+      tag: "notification-" + Date.now(),
+      requireInteraction: true,
+      silent: false,
+      vibrate: [200, 100, 200],
+      actions: [],
+      timestamp: Date.now(),
+    };
+
+    console.log("📢 Showing notification with options:", notificationOptions);
+
     event.waitUntil(
-      self.registration.showNotification(data.title, {
-        body: data.body,
-        icon: "/pwa-192x192.png",
-      }).then(() => {
-        console.log("✅ Notification shown successfully");
-      }).catch((error) => {
-        console.error("❌ Failed to show notification:", error);
-      })
+      self.registration.showNotification(data.title, notificationOptions)
+        .then(() => {
+          console.log("✅ Notification shown successfully");
+        })
+        .catch((error) => {
+          console.error("❌ Failed to show notification:", error);
+        })
     );
   } catch (error) {
     console.error("❌ Error in push event handler:", error);

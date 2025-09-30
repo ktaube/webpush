@@ -47,5 +47,12 @@ export default defineConfig({
   server: {
     allowedHosts: ["ember-notifications.ktservices.dev"],
   },
+  preview: {
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+    },
+  },
   base: "/",
 });
